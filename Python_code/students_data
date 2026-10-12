@@ -1,0 +1,161 @@
+------------------------------import csv file ---------------------------------------
+import pandas as pd
+df_ali_enrol_2025 = pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\alirajpur\2025-26\enrolment_data_alirajpur_2025-26.csv")
+df_ali_enrol_2024 = pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\alirajpur\2024-25\enrolment_data_1_ALIRAJPUR_2024-25.csv")
+df_ali_enrol_2023 = pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\alirajpur\2023-24\alirajpur_enrollment_2023-24.csv")
+
+-------------------------defining function for exploring csv file------------------------
+def enroll_explore(df):
+    print("number of columns",df.shape[0])
+    print("number of rows",df.shape[1])
+    print("Is indexing code is duplicate or not?",df["pseudocode"].duplicated().sum())
+    print("null values in :",df["pseudocode"].isnull().sum())
+    print("Number of unique pseudocode:",df["pseudocode"].nunique())
+    print(
+    df["pseudocode"].value_counts().head(20))
+    print("Completely duplicated rows:",df.duplicated().sum())
+----------------------defining function for student analysis----------------------------
+def total_student_anaylsis(df,school_data: list[pd.DataFrame],district_name: str, year: str):
+    c = 0
+    for c in range (0,13): 
+        if c == 0:
+            b_stud= df["cpp_b"].sum()
+            g_stud= df["cpp_g"].sum()
+            perc_of_male = round((b_stud/(b_stud+g_stud))*100,2)
+            perc_of_female = round((g_stud/(b_stud+g_stud))*100,2)
+            total_student =b_stud+g_stud
+            school_data.append({
+                "year":year,
+                "district_name":district_name,
+                "class":"primary",
+                "male_student":b_stud,
+                "female_student":g_stud,
+                "percentage of male":perc_of_male,
+                "percentage of female":perc_of_female,
+                "total student":total_student,
+                "enrollment_as_compare to previous year":0,
+                "percentage of enrollment as compare to py":0
+            })
+            c+=1
+        else:
+            b_stud= df[f"c{c}_b"].sum()
+            g_stud= df[f"c{c}_g"].sum()
+            total_student =b_stud+g_stud
+            perc_of_male = round((b_stud/(b_stud+g_stud))*100,2)
+            perc_of_female = round((g_stud/(b_stud+g_stud))*100,2)
+            if (c == 1):
+                pr_year_student= df["cpp_b"].sum()+df["cpp_g"].sum()
+                enroll_stud = (total_student - pr_year_student)
+                perc_of_enroll_stud =round((enroll_stud/total_student)*100,2)
+            else:
+                a =c-1
+                pr_year_student = df[f"c{a}_b"].sum()+df[f"c{a}_g"].sum()
+                enroll_stud = total_student -pr_year_student
+                perc_of_enroll_stud =round((enroll_stud/total_student)*100,2)
+            school_data.append({
+                "year":year,
+                "district_name":district_name,      
+                "class":f"class_{c}",
+                "male_student":b_stud,
+                "female_student":g_stud,
+                "percentage of male":perc_of_male,
+                "percentage of female":perc_of_female,
+                "total student":total_student ,
+                "enrollment_as_compare to previous year":enroll_stud,
+                "percentage of enrollment as compare to py":perc_of_enroll_stud
+            })
+        c+=1
+    anaysis_student = pd.DataFrame(school_data)
+    print(anaysis_student)
+
+------------------------------exploring file using previous functions----------------------------
+  
+#students = []
+#total_student_anaylsis(df_ali_enrol_2025,students,"Alirajpur","2025-26")      
+#total_student_anaylsis(df_ali_enrol_2024,students,"Alirajpur","2024-25")
+#total_student_anaylsis(df_ali_enrol_2023,students,"Alirajpur","2023-24")
+
+df_bhop_enrol_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\2025-26\enroll_data_bhop_25-26.csv")
+df_bhop_enrol_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\2024-25\enroll_data_1_bhop_24-25.csv")
+df_bhop_enrol_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\2023-24\enroll_bhop_23-24.csv")
+
+enroll_explore(df_bhop_enrol_2025)
+enroll_explore(df_bhop_enrol_2024)
+enroll_explore(df_bhop_enrol_2023)
+
+lists =[]
+total_student_anaylsis(df_bhop_enrol_2025,lists,"Bhopal","2025-26")
+total_student_anaylsis(df_bhop_enrol_2024,lists,"Bhopal","2024-25")
+total_student_anaylsis(df_bhop_enrol_2023,lists,"Bhopal","2023-24")
+
+lists = pd.DataFrame(lists)
+lists.to_csv(r"C:\Users\Administrator\Desktop\M&E Project\bhopal\student_enrollment_bhopal_results.csv",index=False)
+
+df_Harda_enrol_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\2025-26\enrollment_harda_25-26.csv")
+df_Harda_enrol_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\2024-25\enrolment_data_1_harda_24-25.csv")
+df_Harda_enrol_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\2023-24\enrolment_data_1_harda_23-24.csv")
+
+enroll_explore(df_Harda_enrol_2025)
+enroll_explore(df_Harda_enrol_2024)
+enroll_explore(df_Harda_enrol_2023)
+
+stud_h_list=[]
+total_student_anaylsis(df_Harda_enrol_2025,stud_h_list,"Harda","2025-26")
+total_student_anaylsis(df_Harda_enrol_2024,stud_h_list,"Harda","2024-25")
+total_student_anaylsis(df_Harda_enrol_2023,stud_h_list,"Harda","2023-24")
+stud_h_list =pd.DataFrame(stud_h_list)
+stud_h_list.to_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\school_enrollment_harda.csv",
+                  index=False)
+
+df_Indore_enrol_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\2025-26\enrolment_data_1_indore_25-26.csv")
+df_Indore_enrol_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\2024-25\enrolment_data_indore_24-25.csv")
+df_Indore_enrol_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\2023-24\enrolment_data_indore_23-24.csv")
+
+enroll_explore(df_Indore_enrol_2025)
+enroll_explore(df_Indore_enrol_2024)
+enroll_explore(df_Indore_enrol_2023)
+
+stud_I_list=[]
+total_student_anaylsis(df_Indore_enrol_2025,stud_I_list,"Indore","2025-26")
+total_student_anaylsis(df_Indore_enrol_2024,stud_I_list,"Indore","2024-25")
+total_student_anaylsis(df_Indore_enrol_2023,stud_I_list,"Indore","2023-24")
+stud_I_list =pd.DataFrame(stud_I_list)
+
+stud_I_list.to_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\school_enrolment_indore.csv",
+                   index=False)
+
+df_Mandla_enrol_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\2025-26\enrolment_data_1_mandla_25-26.csv")
+df_Mandla_enrol_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\2024-25\enrolment_data_1_mandla_24-25.csv")
+df_Mandla_enrol_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\2023-24\enrolment_data_mandla_23-24.csv")
+
+enroll_explore(df_Mandla_enrol_2025)
+enroll_explore(df_Mandla_enrol_2024)
+enroll_explore(df_Mandla_enrol_2023)
+enrol_m_list =[]
+
+stud_M_list=[]
+total_student_anaylsis(df_Mandla_enrol_2025,stud_M_list,"Mandla","2025-26")
+total_student_anaylsis(df_Mandla_enrol_2024,stud_M_list,"Mandla","2024-25")
+total_student_anaylsis(df_Mandla_enrol_2023,stud_M_list,"Mandla","2023-24")
+
+stud_M_list=pd.DataFrame(stud_M_list)
+stud_M_list.to_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\school_enrolment_Mandla.csv",
+                    index=False)
+
+df_Ujjain_enrol_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\2025-26\enrolment_data_1_ujjain_25-26.csv")
+df_Ujjain_enrol_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\2024-25\enrolment_data_1_ujjain_24-25.csv")
+df_Ujjain_enrol_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\2023-24\enrolment_data_1_ujjain_23-24.csv")
+
+enroll_explore(df_Ujjain_enrol_2025)
+enroll_explore(df_Ujjain_enrol_2024)
+enroll_explore(df_Ujjain_enrol_2023)
+
+stud_U_list =[]
+total_student_anaylsis(df_Ujjain_enrol_2025,stud_U_list,"Ujjain","2025-26")
+total_student_anaylsis(df_Ujjain_enrol_2024,stud_U_list,"Ujjain","2024-25")
+total_student_anaylsis(df_Ujjain_enrol_2023,stud_U_list,"Ujjain","2023-24")
+stud_U_list =pd.DataFrame(stud_U_list)
+stud_U_list.to_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\school_enrolment_Ujjain.csv",
+                   index=False)
+
+print("Results saved successfully!")        
