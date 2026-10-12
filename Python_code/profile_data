@@ -1,0 +1,300 @@
+--------------importing the file ----------------------
+import pandas as pd 
+df_ali_profile1_2025 =pd.read_csv(r"C:\Users\Administrator\Desktop\M&E Project\alirajpur\2025-26\profile_data_1_alirajpur_2025-26.csv")
+df_ali_profile1_2024 =pd.read_csv(r"C:\Users\Administrator\Desktop\M&E Project\alirajpur\2024-25\profile_data_1_alirajpur_2024-25.csv")
+df_ali_profile1_2023 =pd.read_csv(r"C:\Users\Administrator\Desktop\M&E Project\alirajpur\2023-24\alirajpur_profile1_2023-24.csv")
+
+------------------defining function for exploring the data in excel files ------------------
+def profile_explore(df):
+    print("number of columns and rows :\n ",df.shape)      
+    print("Is indexing code is duplicate or not?",df["pseudocode"].duplicated().sum())
+    print("null values in :",df["pseudocode"].isnull().sum())
+    print("Number of unique pseudocode:",df["pseudocode"].nunique())
+    if "school_type" in df.columns:
+        print("type of school:",df.groupby("school_type")["pseudocode"].count(),"\n(Code 1) = Managed by the State Government \n(Code 2) = Managed by the Tribal Welfare Department \n(Code 3)=Managed by Local Bodies ")
+    else:
+        return "Not Available"
+    if "lowclass" in df.columns: 
+        print("lowest class in the school:",df.groupby("lowclass")["pseudocode"].count())
+        lc =df.groupby("lowclass")["pseudocode"].count()
+    else:
+        return "Not Available"
+    if "highclass" in df.columns:
+        print("highest class in the school:",df.groupby("highclass")["pseudocode"].count())
+    else:
+        return "Not Available"
+    if "certified_fit_india_yn" in df.columns:
+        print("School certified as Fit India School :",df.groupby("certified_fit_india_yn")["pseudocode"].count(),"\n1 = YES \n2 = NO \n9 = UNKNOWN ")
+    else:
+        return "Not Available"
+    if "lowclass" in df.columns:
+        print("School provides any vocational training under NSQF :",df.groupby("is_nsqf")["pseudocode"].count(),"\n1 = YES \n2 = NO \n9 = UNKNOWN ")
+    else:
+        return "Not available"
+    
+-------------defining function to comvert data from raw numbers to list form-----------------    
+def profile_summary(df,result: list[pd.DataFrame],district_name,year:str):
+    result.append({
+        "year":year,
+        "district_name":district_name,
+        "catch":"number of columns",
+        "value":df.shape[0]         
+    })
+    result.append({
+        "year":year,
+        "district_name":district_name,
+        "catch":"number of rows",
+        "value":df.shape[1]         
+    })
+    if "school_type" in df.columns:
+        owernship_type =df.groupby("school_type")["pseudocode"].count()   
+        result.append({
+            "year":year,
+            "district_name":district_name,
+            "catch":"school managed by state govt",
+            "value":owernship_type.get(1,"Not Available")
+        })
+        result.append({
+            "year":year,
+            "district_name":district_name,
+            "catch":"school managed by Tribal Welfare Department",
+            "value":owernship_type.get(2,"Not Available")
+        })
+        result.append({
+            "year":year,
+            "district_name":district_name,
+            "catch":"school managed by Local bodies",
+            "value":owernship_type.get(3,"Not Available")
+        })
+    else:
+        result.append({
+            "year":year,
+            "district_name":district_name,
+            "catch":"school_column",
+            "value":"not available in this table"
+        })
+    if "lowclass" in df.columns:
+        lc = df.groupby("lowclass")["pseudocode"].count()
+        for lowclass, value in lc.items():
+            result.append({
+                "year": year,
+                "district_name": district_name,
+                "catch": f"{lowclass} class is starting class of school",
+                "value": value
+                })
+    else:
+        result.append({
+            "year": year,
+            "district_name": district_name,
+            "catch": "lowest class in school is pseudocode",
+            "value":"not available"
+        })
+    if "highclass" in df.columns:
+            hc = df.groupby("highclass")["pseudocode"].count()
+            for highclass,value in hc.items():
+                result.append({
+                    "year": year,
+                    "district_name": district_name,
+                    "catch": f"{highclass} class is end class of school",
+                    "value": value
+                })                
+    else:
+        result.append({
+                    "year": year,
+                    "district_name": district_name,
+                    "catch": "highclass",
+                    "value":"not available"
+                })        
+    if "certified_fit_india_yn" in df.columns:
+        cert_fit_india = df.groupby("certified_fit_india_yn").size()
+        for code,value in cert_fit_india.items():
+            result.append({
+                "year": year,
+                "district_name": district_name,
+                "catch": f"School certified as Fit India School code:{code}| 1=Yes ,2= No,3= Unknown",
+                "value": value
+                })                      
+    else:
+        result.append({
+                    "year": year,
+                    "district_name": district_name,
+                    "catch": "certified_fit_india_yn",
+                    "value":"not available"
+                })                    
+    if "is_nsqf" in df.columns:
+        nsqf =df.groupby("is_nsqf").size()
+        for code,value in nsqf.items():
+            result.append({
+                "year": year,
+                "district_name": district_name,
+                "catch": f"School provides any vocational training under NSQF:{code}| 1=Yes ,2= No,3= Unknown",
+                "value": value
+                })  
+    else:
+        result.append({
+                    "year": year,
+                    "district_name": district_name,
+                    "catch": "is_nsqf",
+                    "value":"not available"
+                })
+    result =pd.DataFrame(result)
+    print(result)                
+    
+------------------defining function to compare data between 2 different excel file--------------   
+def compare_two_CSV(df1,year1: str,df2, year2:str):   
+    print(f"length of column in{year1}:",len(df1.columns))
+    print(f"length of column in {year2}:",len(df2.columns))
+    print("missing columns:\n",set(df1.columns) - set(df2.columns))
+    if df1["pseudocode"].reset_index(
+        drop=True).equals(df2["pseudocode"].reset_index(drop=True)):
+        print("True")
+    else:
+        print("pseudocode is not same for both table")
+
+----------------defining function for missing value identification---------------
+def missing_value(df):
+    missing = df.isnull().sum()
+    for value,number in missing.items():
+        if(number >0):
+            print(f"{value} : {number}")
+    print("Count the missing value \n",df["rural_urban"].value_counts(dropna=False))
+    print("understanding the group by data \n",
+    df.groupby("rural_urban")["pseudocode"]
+      .count())
+    if "district"in df.columns:
+        print("data validation stage \n",df["district"].value_counts())
+    if "block" in df.columns :
+        print("how block data is distributed\n ",df["block"].value_counts())
+
+------------------applying function on multiple file----------------------- 
+results =[]
+profile_summary(df_ali_profile1_2025,results,"Alirajpur","2025-26")
+profile_summary(df_ali_profile1_2024,results,"Alirajpur","2024-25")
+profile_summary(df_ali_profile1_2023,results,"Alirajpur","2023-24")
+results = pd.DataFrame(results) 
+results.to_csv(
+   r"C:\Users\Administrator\Desktop\M&E Project\alirajpur\profile_aliraj_summary.csv",
+   index=False)
+print("successfully saved")
+
+df_bhopal_profile1_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\2025-26\profile_data_bhop_2025-26.csv")
+df_bhopal_profile1_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\2024-25\profile_data_1_24-25.csv")
+df_bhopal_profile1_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\2023-24\profile_data_1_bhop.csv")
+
+profile_explore(df_bhopal_profile1_2025)
+missing_value(df_bhopal_profile1_2025)
+print(df_bhopal_profile1_2025[df_bhopal_profile1_2025["block"]=="BHOPAL REGION"])
+
+profile_explore(df_ali_profile1_2024)
+profile_explore(df_ali_profile1_2023)
+
+compare_two_CSV(df_bhopal_profile1_2025,"2025-26",df_ali_profile1_2024,"2024-25")
+compare_two_CSV(df_bhopal_profile1_2024,"2024-25",df_ali_profile1_2023,"2023-24")
+missing_value(df_bhopal_profile1_2024)
+
+print(" \n")
+missing_value(df_bhopal_profile1_2023)
+summary=[]
+profile_summary(df_bhopal_profile1_2025,summary,"Bhopal","2025-26")
+profile_summary(df_bhopal_profile1_2024,summary,"Bhopal","2024-25")
+profile_summary(df_bhopal_profile1_2023,summary,"Bhopal","2023-24")
+
+summary = pd.DataFrame(summary) 
+summary.to_csv(
+    r"C:\Users\Administrator\Desktop\M&E Project\bhopal\bhopal_profile_summary.csv",
+   index=False
+)
+
+df_harda_profile1_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\2025-26\profile_1_harda_25-26.csv")
+df_harda_profile1_2024 = pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\2024-25\profile_data_1_harda_24-25.csv")
+df_harda_profile1_2023 = pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\2023-24\profile_data_1_harda_23-24.csv")
+
+profile_explore(df_harda_profile1_2025)
+profile_explore(df_harda_profile1_2024)
+profile_explore(df_harda_profile1_2023)
+
+compare_two_CSV(df_harda_profile1_2025,"2025-26",df_harda_profile1_2024,"2024-23")
+compare_two_CSV(df_harda_profile1_2024,"2024-25",df_harda_profile1_2023,"2023-24")
+
+missing_value(df_harda_profile1_2025)
+missing_value(df_harda_profile1_2024)
+missing_value(df_harda_profile1_2023)
+harda_list=[]
+profile_summary(df_harda_profile1_2025,harda_list,"Harda","2025-26")
+profile_summary(df_harda_profile1_2024,harda_list,"Harda","2024-25")
+profile_summary(df_harda_profile1_2023,harda_list,"Harda","2023-24")
+harda_list = pd.DataFrame(harda_list)
+
+harda_list.to_csv(r"C:\Users\Administrator\Desktop\M&E Project\harda\harda_profile_summary.csv",
+                  index=False)
+
+
+df_indore_profile1_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\2025-26\profile_data_1_indore_25-26.csv")
+df_indore_profile1_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\2024-25\profile_data_1_indore_24-25.csv")
+df_indore_profile1_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\2023-24\profile_data_1_indore_23-24.csv")
+print("Results saved successfully!")
+
+profile_explore(df_indore_profile1_2025)
+profile_explore(df_indore_profile1_2024)
+profile_explore(df_indore_profile1_2023)
+
+compare_two_CSV(df_indore_profile1_2025,"2025-26",df_indore_profile1_2024,"2024-25")
+compare_two_CSV(df_indore_profile1_2024,"2024-25",df_indore_profile1_2023,"2023-24")
+
+missing_value(df_indore_profile1_2023)
+indore_list=[]
+profile_summary(df_indore_profile1_2025,indore_list,"Indore","2025-26")
+profile_summary(df_indore_profile1_2024,indore_list,"Indore","2024-25")
+profile_summary(df_indore_profile1_2023,indore_list,"Indore","2023-24")
+
+indore_list = pd.DataFrame(indore_list)
+indore_list.to_csv(r"C:\Users\Administrator\Desktop\M&E Project\indore\profile_indore_summary.csv",
+                   index=False)
+df_mandla_profile1_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\2025-26\profile_data_1_mandla_25-26.csv")
+df_mandla_profile1_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\2024-25\profile_data_1_mandla_24-25.csv")
+df_mandla_profile1_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\2023-24\profile_data_mandla_23-24.csv")
+
+profile_explore(df_mandla_profile1_2023)
+compare_two_CSV(df_mandla_profile1_2024,"2024-25",df_mandla_profile1_2023,"2023-24")
+missing_value(df_mandla_profile1_2023)
+print(df_mandla_profile1_2025[df_mandla_profile1_2025["block"]=="BHOPAL REGION"])
+print(df_mandla_profile1_2025[df_mandla_profile1_2025["block"]=="JABALPUR REGION"])
+
+mandla_list=[]
+profile_summary(df_mandla_profile1_2025,mandla_list,"Mandla","2025-26")
+profile_summary(df_mandla_profile1_2024,mandla_list,"Mandla","2024-25")
+profile_summary(df_mandla_profile1_2023,mandla_list,"Mandla","2023-24")
+
+mandla_list =pd.DataFrame(mandla_list)
+mandla_list.to_csv(r"C:\Users\Administrator\Desktop\M&E Project\mandla\profile_mandla_summary.csv",
+                   index=False)
+
+df_ujjain_profile1_2025 = pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\2025-26\profile_data_1_ujjain_25-26.csv")
+df_ujjain_profile1_2024 = pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\2024-25\profile_data_1_ujjain_24-25.csv")
+df_ujjain_profile1_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\2023-24\profile_data_mandla_23-24.csv")
+
+profile_explore(df_ujjain_profile1_2025)
+print(" \n")
+profile_explore(df_ujjain_profile1_2024)
+print("  \n")
+profile_explore(df_ujjain_profile1_2023)
+
+ujjain_list =[]
+profile_summary(df_ujjain_profile1_2025,ujjain_list,"Ujjain","2025-26")
+profile_summary(df_ujjain_profile1_2024,ujjain_list,"Ujjain","2024-25")
+profile_summary(df_ujjain_profile1_2023,ujjain_list,"Ujjain","2023-24")
+
+ujjain_list =pd.DataFrame(ujjain_list)
+ujjain_list.to_csv(r"C:\Users\Administrator\Desktop\M&E Project\ujjain\profile_ujjain_summary.csv",
+                   index=False)
+print("successfully saved")
+
+df_ali_profile =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\alirajpur\profile_summary_results.csv")
+df_bhopal_profile=pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\bhopal_profile_summary.csv")
+df_harda_profile =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\harda_profile_summary.csv")
+df_indore_profile =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\profile_indore_summary.csv")
+df_mandla_profile =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\profile_mandla_summary.csv")
+df_ujjain_profile =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\profile_ujjain_summary.csv")
+
+print(set(df_ali_profile["catch"])==set(df_bhopal_profile["catch"]))
+print(set(df_bhopal_profile["catch"])-set(df_ali_profile["catch"]) )  
