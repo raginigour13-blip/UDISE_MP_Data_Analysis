@@ -1,38 +1,39 @@
 --------------------------generating final file into presentable formate----------------------
 /* creating view of existing data for monitoring and evaluation of the data*/
 CREATE VIEW Profile_pivot AS
+/*----------------creating subquery to deal with multiple data-----------------*/
 with profile_summary as(
-SELECT 
-    a.year,
-    a.catch as categories,
-    a.value as Alirajpur_values,
-    b.value as Bhopal_values,
-    h.value as Harda_values,
-    i.value as Indore_values,
-    m.value as Mandla_values,
-    u.value as Ujjain_values
-FROM profile_aliraj_summary a
-LEFT JOIN profile_bhopal_summary b
-    ON a.catch = b.catch
-    AND a.year = b.year
-
-LEFT JOIN profile_harda_summary h
-    ON a.catch = h.catch
-    AND a.year = h.year
-
-LEFT JOIN profile_indore_summary i
-    ON a.catch = i.catch
-    AND a.year = i.year
-
-LEFT JOIN profile_mandla_summary m
-    ON a.catch = m.catch
-    AND a.year = m.year
-
-LEFT JOIN profile_ujjain_summary u
-    ON a.catch = u.catch
-    AND a.year = u.year
-    )
-   
+    SELECT 
+        a.year,
+        a.catch as categories,
+        a.value as Alirajpur_values,
+        b.value as Bhopal_values,
+        h.value as Harda_values,
+        i.value as Indore_values,
+        m.value as Mandla_values,
+        u.value as Ujjain_values
+    FROM profile_aliraj_summary a
+    LEFT JOIN profile_bhopal_summary b
+        ON a.catch = b.catch
+        AND a.year = b.year
+    
+    LEFT JOIN profile_harda_summary h
+        ON a.catch = h.catch
+        AND a.year = h.year
+    
+    LEFT JOIN profile_indore_summary i
+        ON a.catch = i.catch
+        AND a.year = i.year
+    
+    LEFT JOIN profile_mandla_summary m
+        ON a.catch = m.catch
+        AND a.year = m.year
+    
+    LEFT JOIN profile_ujjain_summary u
+        ON a.catch = u.catch
+        AND a.year = u.year
+        )
+/*-------------------------using subquery for transposing data ---------------*/   
 SELECT
     categories,
 
