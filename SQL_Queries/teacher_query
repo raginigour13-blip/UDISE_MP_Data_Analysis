@@ -1,0 +1,89 @@
+/*Creating view of existing data for monitoring and evaluation project*/
+create view teacher_pivot as
+with teacher_summary as(
+select
+    a.year,
+    a.catch as categories,
+    round(a.value,2) as Alirajpur_values,
+    round(b.value,2) as Bhopal_values,
+    round(h.value,2) as Harda_values,
+    round(i.value,2) as Indore_values,
+    round(m.value,2) as Mandla_values,
+    round(u.value,2) as Ujjain_values
+from teach_ali_summary a
+left join teacher_bhopal_summary b
+on  a.catch = b.catch and a.year = b.year
+left join teach_harda_summary h
+on a.catch = h.catch and a.year = h.year
+left join teacher_indore_summary i
+on a.catch = i.catch and a.year = i.year
+left join teacher_mandla_summary m
+on a.catch = m.catch and a.year = m.year
+left join teacher_ujjain_summary u 
+on a.catch = u.catch and a.year = u.year
+)
+select 
+    categories,
+        -- ALIRAJPUR
+    MAX(CASE WHEN year = '2023-24'
+            THEN Alirajpur_values END) AS Alirajpur_2023_24,
+    MAX(CASE WHEN year = '2024-25'
+            THEN Alirajpur_values END) AS Alirajpur_2024_25,
+    MAX(CASE WHEN year = '2025-26'
+            THEN Alirajpur_values END) AS Alirajpur_2025_26,
+
+        -- BHOPAL
+        MAX(CASE WHEN year = '2023-24'
+            THEN Bhopal_values END) AS Bhopal_2023_24,
+
+        MAX(CASE WHEN year = '2024-25'
+            THEN Bhopal_values END) AS Bhopal_2024_25,
+
+        MAX(CASE WHEN year = '2025-26'
+            THEN Bhopal_values END) AS Bhopal_2025_26,
+
+
+        -- HARDA
+        MAX(CASE WHEN year = '2023-24'
+            THEN Harda_values END) AS Harda_2023_24,
+
+        MAX(CASE WHEN year = '2024-25'
+            THEN Harda_values END) AS Harda_2024_25,
+
+        MAX(CASE WHEN year = '2025-26'
+            THEN Harda_values END) AS Harda_2025_26,
+
+
+        -- INDORE
+        MAX(CASE WHEN year = '2023-24'
+            THEN Indore_values END) AS Indore_2023_24,
+
+        MAX(CASE WHEN year = '2024-25'
+            THEN Indore_values END) AS Indore_2024_25,
+
+        MAX(CASE WHEN year = '2025-26'
+            THEN Indore_values END) AS Indore_2025_26,
+
+
+        -- MANDLA
+        MAX(CASE WHEN year = '2023-24'
+            THEN Mandla_values END) AS Mandla_2023_24,
+
+        MAX(CASE WHEN year = '2024-25'
+            THEN Mandla_values END) AS Mandla_2024_25,
+
+        MAX(CASE WHEN year = '2025-26'
+            THEN Mandla_values END) AS Mandla_2025_26,
+
+
+        -- UJJAIN
+        MAX(CASE WHEN year = '2023-24'
+            THEN Ujjain_values END) AS Ujjain_2023_24,
+
+        MAX(CASE WHEN year = '2024-25'
+            THEN Ujjain_values END) AS Ujjain_2024_25,
+
+        MAX(CASE WHEN year = '2025-26'
+            THEN Ujjain_values END) AS Ujjain_2025_26
+from teacher_summary
+group by categories
