@@ -1,0 +1,227 @@
+/*creating view for monitoring and evaluation of data */ 
+Create view students_in_school as 
+/*----------------creating subquery to deal with multiple data-----------------*/
+    with student_summary as (
+    select 
+    	h.year,
+    	h.class,
+    	h.male_student as 'male_student_harda' ,
+    	h.female_student as 'female_student_harda',
+      round(h.percentage_of_male,2) as 'male_perc_harda',
+    	round(h.percentage_of_female,2) as 'female_perc_harda',
+    	h.total_student as 'total_student_harda',
+      a.male_student as 'male_student_Alirajpur',
+      a.female_student as 'female_student_Alirajpur',
+      round(a.percentage_of_male,2) as 'male_perc_Alirajpur',
+      round(a.percentage_of_female,2) as 'female_perc_Alirajpur',
+      a.total_student as 'total_student_Alirajpur',
+    	i.male_student as 'male_student_Indore',
+    	i.female_student as 'female_student_Indore',
+    	round(i.percentage_of_male,2) as 'male_perc_Indore',
+    	round(i.percentage_of_female,2) as 'female_perc_Indore',
+    	i.total_student as 'total_student_Indore',
+    	m.male_student as 'male_student_Mandla',
+    	m.female_student as 'female_student_Mandla',
+    	round(m.percentage_of_male,2) as 'male_perc_Mandla',
+    	round(m.percentage_of_female,2) as 'female_perc_Mandla',
+    	m.total_student as 'total_student_Mandla',
+    	u.male_student as 'male_student_Ujjain',
+    	u.female_student as 'female_student_Ujjain',
+    	round(u.percentage_of_male,2) as 'male_perc_Ujjain',
+    	round(u.percentage_of_female,2) as 'female_perc_Ujjain',
+    	u.total_student as 'total_student_Ujjain',
+    	b.male_student as 'male_student_Bhopal',
+    	b.female_student as 'female_student_Bhopal',
+    	round(b.percentage_of_male,2) as 'male_perc_Bhopal',
+    	round(b.percentage_of_female,2) as 'female_perc_Bhopal',
+    	b.total_student as 'total_student_Bhopal'
+    from school_enrollment_harda h
+    left join student_enrol_ali_results a
+    on h.year =a.year 
+        and h.class = a.class
+    left join school_enrolment_indore i
+    ON h.year = i.year
+        AND h.class = i.class
+    left join school_enrolment_Mandla m
+    on h.year = m.year 
+    		and h.class =m.class
+    left join school_enrolment_Ujjain u
+    on h.year =u.year
+    	and	h.class =u.class
+    left join student_enrollment_bhopal_results b
+    on h.year = b.year
+    	and	h.class= b.class
+    )
+
+/*----------------utilising the subquery for final transposing the table--------------*/
+select 
+    class,
+    CASE
+    WHEN class = 'primary' THEN 1
+    WHEN class = 'class_1' THEN 2
+    WHEN class = 'class_2' THEN 3
+    WHEN class = 'class_3' THEN 4
+    WHEN class = 'class_4' THEN 5
+    WHEN class = 'class_5' THEN 6
+    WHEN class = 'class_6' THEN 7
+    WHEN class = 'class_7' THEN 8
+    WHEN class = 'class_8' THEN 9
+    WHEN class = 'class_9' THEN 10
+    WHEN class = 'class_10' THEN 11
+    WHEN class = 'class_11' THEN 12
+    WHEN class = 'class_12' THEN 13
+    END AS class_index,
+    -- HARDA
+    MAX(CASE WHEN year = '2023-24'
+        THEN male_student_harda END) AS Harda_Male_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN male_student_harda END) AS Harda_Male_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN male_student_harda END) AS Harda_Male_2025_26,
+
+    MAX(CASE WHEN year = '2023-24'
+        THEN female_student_harda END) AS Harda_Female_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN female_student_harda END) AS Harda_Female_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN female_student_harda END) AS Harda_Female_2025_26,
+
+    MAX(CASE WHEN year = '2023-24'
+        THEN total_student_harda END) AS Harda_Total_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN total_student_harda END) AS Harda_Total_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN total_student_harda END) AS Harda_Total_2025_26,
+        -- Alirajpur
+    MAX(CASE WHEN year = '2023-24'
+        THEN male_student_Alirajpur END) AS Alirajpur_Male_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN male_student_Alirajpur END) AS Alirajpur_Male_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN male_student_Alirajpur END) AS Alirajpur_Male_2025_26,
+
+    MAX(CASE WHEN year = '2023-24'
+        THEN female_student_Alirajpur END) AS Alirajpur_Female_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN female_student_Alirajpur END) AS Alirajpur_Female_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN female_student_Alirajpur END) AS Alirajpur_Female_2025_26,
+
+    MAX(CASE WHEN year = '2023-24'
+        THEN total_student_Alirajpur END) AS Alirajpur_Total_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN total_student_Alirajpur END) AS Alirajpur_Total_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN total_student_Alirajpur END) AS Alirajpur_Total_2025_26,
+            -- INDORE
+    MAX(CASE WHEN year = '2023-24'
+        THEN male_student_Indore END) AS Indore_Male_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN male_student_Indore END) AS Indore_Male_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN male_student_Indore END) AS Indore_Male_2025_26,
+
+    MAX(CASE WHEN year = '2023-24'
+        THEN female_student_Indore END) AS Indore_Female_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN female_student_Indore END) AS Indore_Female_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN female_student_Indore END) AS Indore_Female_2025_26,
+
+    MAX(CASE WHEN year = '2023-24'
+        THEN total_student_Indore END) AS Indore_Total_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN total_student_Indore END) AS Indore_Total_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN total_student_Indore END) AS Indore_Total_2025_26,
+            -- MANDLA
+    MAX(CASE WHEN year = '2023-24'
+        THEN male_student_Mandla END) AS Mandla_Male_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN male_student_Mandla END) AS Mandla_Male_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN male_student_Mandla END) AS Mandla_Male_2025_26,
+
+    MAX(CASE WHEN year = '2023-24'
+        THEN female_student_Mandla END) AS Mandla_Female_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN female_student_Mandla END) AS Mandla_Female_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN female_student_Mandla END) AS Mandla_Female_2025_26,
+
+    MAX(CASE WHEN year = '2023-24'
+        THEN total_student_Mandla END) AS Mandla_Total_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+        THEN total_student_Mandla END) AS Mandla_Total_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+        THEN total_student_Mandla END) AS Mandla_Total_2025_26,
+    -- BHOPAL
+    MAX(CASE WHEN year = '2023-24'
+    THEN male_student_Bhopal END) AS Bhopal_Male_2023_24,
+    MAX(CASE WHEN year = '2024-25'
+    THEN male_student_Bhopal END) AS Bhopal_Male_2024_25,
+    MAX(CASE WHEN year = '2025-26'
+    THEN male_student_Bhopal END) AS Bhopal_Male_2025_26,
+    MAX(CASE WHEN year = '2023-24'
+    THEN female_student_Bhopal END) AS Bhopal_Female_2023_24,
+    MAX(CASE WHEN year = '2024-25'
+    THEN female_student_Bhopal END) AS Bhopal_Female_2024_25,
+    MAX(CASE WHEN year = '2025-26'
+    THEN female_student_Bhopal END) AS Bhopal_Female_2025_26,
+    MAX(CASE WHEN year = '2023-24'
+    THEN total_student_Bhopal END) AS Bhopal_Total_2023_24,
+    MAX(CASE WHEN year = '2024-25'
+    THEN total_student_Bhopal END) AS Bhopal_Total_2024_25,
+    MAX(CASE WHEN year = '2025-26'
+    THEN total_student_Bhopal END) AS Bhopal_Total_2025_26,
+-- UJJAIN
+    MAX(CASE WHEN year = '2023-24'
+    THEN male_student_Ujjain END) AS Ujjain_Male_2023_24,
+    MAX(CASE WHEN year = '2024-25'
+    THEN male_student_Ujjain END) AS Ujjain_Male_2024_25,
+    MAX(CASE WHEN year = '2025-26'
+    THEN male_student_Ujjain END) AS Ujjain_Male_2025_26,
+    MAX(CASE WHEN year = '2023-24'
+    THEN female_student_Ujjain END) AS Ujjain_Female_2023_24,
+
+    MAX(CASE WHEN year = '2024-25'
+    THEN female_student_Ujjain END) AS Ujjain_Female_2024_25,
+
+    MAX(CASE WHEN year = '2025-26'
+    THEN female_student_Ujjain END) AS Ujjain_Female_2025_26,
+
+    MAX(CASE WHEN year = '2023-24'
+    THEN total_student_Ujjain END) AS Ujjain_Total_2023_24,
+    MAX(CASE WHEN year = '2024-25'
+    THEN total_student_Ujjain END) AS Ujjain_Total_2024_25,
+    MAX(CASE WHEN year = '2025-26'
+    THEN total_student_Ujjain END) AS Ujjain_Total_2025_26
+FROM student_summary
+
+GROUP BY class
+
+
