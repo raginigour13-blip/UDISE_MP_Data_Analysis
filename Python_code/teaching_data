@@ -1,0 +1,279 @@
+---------------------import data--------------------------
+import pandas as pd
+df_ali_teaching_2025 = pd.read_csv(r"C:\Users\Administrator\Desktop\M&E Project\alirajpur\2025-26\teacher_data_alirajpur_2025-26.csv")
+df_ali_profile1_2025 =pd.read_csv(r"C:\Users\Administrator\Desktop\M&E Project\alirajpur\2025-26\profile_data_1_alirajpur_2025-26.csv")
+df_ali_teaching_2024 = pd.read_csv(r"C:\Users\Administrator\Desktop\M&E Project\alirajpur\2024-25\teacher_data_ALIRAJPUR_2024-25.csv")
+df_ali_teaching_2023 = pd.read_csv(r"C:\Users\Administrator\Desktop\M&E Project\alirajpur\2023-24\alirajpur_teacher_2023-24.csv")
+
+----------------------------defining function data exploration----------------------------
+def check_teaching_data(df):
+    print(df.shape)
+    print(df["pseudocode"].duplicated().sum())
+    missing = df.isnull().sum()
+    print("missing value:\n",missing[missing > 0])
+    print("total teachers:",df["total_tch"].sum())
+    print("school with zero teachers:",(df["total_tch"] == 0).sum())
+    a=0
+    teach_per_school = df.groupby("total_tch")["pseudocode"].size()
+    for code ,value in teach_per_school.items():
+        if code < 10 :
+            a= value + a
+    print("number of school with atmost 10 teacher",a)
+    per_of_school_less = round((a/df.shape[0])*100,2)              
+    print("Percentage of school with atmost 10 teacher",per_of_school_less)
+    print("male teachers:",df["male"].sum())
+    print("female teachers:",df["female"].sum())
+    print("trangender teachers:",df["transgender"].sum())
+    m_teach=df["male"].sum()
+    f_teach=df["female"].sum()
+    perc_of_f_teach = (f_teach/(m_teach+f_teach))*100
+    print("total female teacher in %",round(perc_of_f_teach,2))
+    perc_of_m_teach = (m_teach/(m_teach+f_teach))*100
+    print("Total male teacher in %",round(perc_of_m_teach,2))
+    print("regular teachers:",df["regular"].sum())
+    print("contract teachers:",df["contract"].sum())
+    print("part_time teachers:",df["part_time"].sum())
+    regu_teach = df["regular"].sum()
+    contract_teach = df["contract"].sum()
+    part_t_teach = df["part_time"].sum()
+    perc_of_r_teach = (regu_teach/(regu_teach+contract_teach+part_t_teach))*100
+    perc_of_c_teach = (contract_teach/(regu_teach+contract_teach+part_t_teach))*100
+    perc_of_p_teach = (part_t_teach/(regu_teach+contract_teach+part_t_teach))*100
+    print("% of regular teacher",round(perc_of_r_teach,2))
+    print("% of contract teacher",round(perc_of_c_teach,2))
+    print("% of part time teacher",round(perc_of_p_teach,2))
+    print("teachers with B.Ed qualification:",df["bed_equivalent"].sum())
+    print("teachers with trained CWSN:",df["trained_cwsn"].sum())
+
+-----------------------defining function for storing raw data into list formate------------------------
+def teach_data_summary(df,results:list[pd.DataFrame],district_name: str,year: str):
+    results.append({
+        "year":year,
+        "district_name":district_name,
+        "catch":"total school",
+        "value":df.shape[0]
+    })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"total teachers",
+    "value":df["total_tch"].sum()
+     })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"school with zero teacher",
+    "value":(df["total_tch"] == 0).sum()
+    })
+    a=0
+    teach_per_school = df.groupby("total_tch")["pseudocode"].size()
+    for code ,value in teach_per_school.items():
+        if code < 10 :
+            a= value + a
+    per_of_school_less = round((a/df.shape[0])*100,2)    
+    results.append({
+        "year":year,
+        "district_name":district_name,
+        "catch":"school with atmost 10 teachers",
+        "value":a
+        })
+    results.append({
+        "year":year,
+        "district_name":district_name,
+        "catch":"perctage school with atmost 10 teachers",
+        "value":per_of_school_less
+        })
+    m_teach=df["male"].sum()
+    f_teach=df["female"].sum()
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"female teacher in numbers",
+    "value": f_teach
+    })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"male teacher in numbers",
+    "value": m_teach
+    })
+    perc_of_f_teach = (f_teach/(m_teach+f_teach))*100
+    perc_of_m_teach = (m_teach/(m_teach+f_teach))*100
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"female teacher in %",
+    "value": round(perc_of_f_teach,2)
+    })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"male teacher in %",
+    "value": round(perc_of_m_teach,2)
+    })
+    regu_teach = df["regular"].sum()
+    contract_teach = df["contract"].sum()
+    part_t_teach = df["part_time"].sum()
+    perc_of_r_teach = (regu_teach/(regu_teach+contract_teach+part_t_teach))*100
+    perc_of_c_teach = (contract_teach/(regu_teach+contract_teach+part_t_teach))*100
+    perc_of_p_teach = (part_t_teach/(regu_teach+contract_teach+part_t_teach))*100
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"regular teacher in number",
+    "value": round(regu_teach,2)
+    })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"part time teacher in number",
+    "value": round(part_t_teach,2)
+    })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"contract teacher in number",
+    "value": round(contract_teach,2)
+    })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"regular teacher in %",
+    "value": round(perc_of_r_teach,2)
+    })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"part time teacher in %",
+    "value": round(perc_of_p_teach,2)
+    })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"contract teacher in %",
+    "value": round(perc_of_c_teach,2)
+    })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"teacher with B.ED or equivalent in number",
+    "value": df["bed_equivalent"].sum()
+    })
+    results.append({
+    "year":year,
+    "district_name":district_name,
+    "catch":"teachers with trained CWSN in numbers",
+    "value": df["trained_cwsn"].sum()
+    })
+    summary = pd.DataFrame(results)
+    print(summary)
+
+---------------------------------applying functions on multiple file ------------------------
+results =[]   
+check_teaching_data(df_ali_teaching_2025)
+teach_data_summary(df_ali_teaching_2025,results,"Alirajpur","2025-26")
+check_teaching_data(df_ali_teaching_2024)
+teach_data_summary(df_ali_teaching_2024,results,"Alirajpur","2024-25")
+check_teaching_data(df_ali_teaching_2023)
+teach_data_summary(df_ali_teaching_2023,results,"Alirajpur","2023-24")#
+results = pd.DataFrame(results)
+results.to_csv(
+    r"C:\Users\Administrator\Desktop\M&E Project\alirajpur\teaching_summary_results.csv",
+    index=False)
+
+
+df_bhop_teaching_2025 = pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\2025-26\teacher_data_bhop_25-26.csv")
+df_bhop_teaching_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\2024-25\teacher_bhop_24-25.csv")
+df_bhop_teaching_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\2023-24\teacher_data_bhop_23-24.csv")
+df_bhop_enrol_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\bhopal\2025-26\enroll_data_bhop_25-26.csv")
+
+
+check_teaching_data(df_bhop_teaching_2025)
+print(" \n")
+check_teaching_data(df_bhop_teaching_2024)
+print(" \n")
+check_teaching_data(df_bhop_teaching_2023)
+
+teacher_data =[]
+teach_data_summary(df_bhop_teaching_2025,teacher_data,"Bhopal","2025-26")
+teach_data_summary(df_bhop_teaching_2024,teacher_data,"Bhopal","2024-25")
+teach_data_summary(df_bhop_teaching_2023,teacher_data,"Bhopal","2023-24")
+teacher_data = pd.DataFrame(teacher_data)
+teacher_data.to_csv(r"C:\Users\Administrator\Desktop\M&E Project\bhopal\bhopal_teaching_summary.csv",
+                    index=False)
+
+df_harda_teach_2025 = pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\2025-26\teacher_harda_25-26.csv")
+df_harda_teach_2024 = pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\2024-25\teacher_data_harda_24-25.csv")
+df_harda_teach_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\harda\2023-24\teacher_data_harda_23-24.csv")
+
+check_teaching_data(df_harda_teach_2025)
+print("  \n")
+check_teaching_data(df_harda_teach_2024)
+print("   \n")
+check_teaching_data(df_harda_teach_2023)
+
+harda_list=[]
+summary_collection(df_harda_teach_2025,harda_list,"Harda","2025-26")
+summary_collection(df_harda_teach_2024,harda_list,"Harda","2024-25")
+summary_collection(df_harda_teach_2023,harda_list,"Harda","2023-24")
+
+harda_list= pd.DataFrame(harda_list)
+harda_list.to_csv(r"C:\Users\Administrator\Desktop\M&E Project\harda\teach_harda_summary.csv",
+                  index=False)
+
+df_indore_teach_2025=pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\2025-26\teacher_data_indore_25-26.csv")
+df_indore_teach_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\2024-25\teacher_data_indore_24-25.csv")
+df_indore_teach_2023 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\2023-24\teacher_data_indore_23-24.csv")
+
+check_teaching_data(df_indore_teach_2025)
+print(" \n")
+check_teaching_data(df_indore_teach_2024)
+print("  \n")
+check_teaching_data(df_indore_teach_2023)
+
+indore_list=[]
+teach_data_summary(df_indore_teach_2025,indore_list,"Indore","2025-26")
+teach_data_summary(df_indore_teach_2024,indore_list,"Indore","2024-25")
+teach_data_summary(df_indore_teach_2023,indore_list,"Indore","2023-24")
+
+indore_list =pd.DataFrame(indore_list)
+
+indore_list.to_csv(r"c:\Users\Administrator\Desktop\M&E Project\indore\teacher_indore_summary.csv",
+                   index=False)
+
+df_mandla_teach_2025 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\2025-26\teacher_data_mandla_25-26.csv")
+df_mandla_teach_2024=pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\2024-25\teacher_data_mandla_24-25.csv")
+df_mandla_teach_2023=pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\2023-24\teacher_data_mandla_23-24.csv")
+
+check_teaching_data(df_mandla_teach_2025)
+print("  \n")
+check_teaching_data(df_mandla_teach_2024)
+print("  \n")
+check_teaching_data(df_mandla_teach_2023)
+
+mandla_list=[]
+teach_data_summary(df_mandla_teach_2025,mandla_list,"Mandla","2025-26")
+teach_data_summary(df_mandla_teach_2024,mandla_list,"Mandla","2024-25")
+teach_data_summary(df_mandla_teach_2023,mandla_list,"Mandla","2023-24")
+
+mandla_list =pd.DataFrame(mandla_list)
+mandla_list.to_csv(r"c:\Users\Administrator\Desktop\M&E Project\mandla\teacher_mandla_summary.csv",
+                   index=False)
+df_Ujjain_teach_2025=pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\2025-26\teacher_data_ujjain_25-26.csv")
+df_Ujjain_teach_2024 =pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\2024-25\teacher_data_ujjain_24-25.csv")
+df_Ujjain_teach_2023=pd.read_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\2023-24\teacher_data_ujjain_23-24.csv")
+
+check_teaching_data(df_Ujjain_teach_2025)
+print(" \n")
+check_teaching_data(df_Ujjain_teach_2024)
+print(" \n")
+check_teaching_data(df_Ujjain_teach_2023)
+ujjain_list =[]
+teach_data_summary(df_Ujjain_teach_2025,ujjain_list,"Ujjain","2025-26")
+teach_data_summary(df_Ujjain_teach_2024,ujjain_list,"Ujjain","2024-25")
+teach_data_summary(df_Ujjain_teach_2023,ujjain_list,"Ujjain","2023-24")
+
+ujjain_list=pd.DataFrame(ujjain_list)
+ujjain_list.to_csv(r"c:\Users\Administrator\Desktop\M&E Project\ujjain\teacher_ujjain_summary.csv",
+                   index=False)
+print("Results saved successfully!")
